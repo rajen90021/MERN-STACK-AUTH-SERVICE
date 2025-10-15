@@ -4,9 +4,13 @@
   "description": "the user management service",
   "main": "index.js",
   "scripts": {
-    "dev":" node src/server.js",
+    "dev": " node src/server.js",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "author": "rajen gupta rajen90021@gmail.com",
-  "license": "ISC"
+  "license": "ISC",
+  "devDependencies": {
+    "@types/node": "^24.7.2",
+    "typescript": "^5.9.3"
+  }
 }
