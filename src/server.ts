@@ -1,5 +1,3 @@
-function welcome(name : String){
+function welcome(name: String) { }
 
-}
-
-welcome("hellee")
+welcome("hellee");
