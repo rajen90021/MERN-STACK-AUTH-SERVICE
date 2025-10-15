@@ -2,4 +2,4 @@ function welcome(name : String){
 
 }
 
-welcome("hell")
+welcome("hellee")
