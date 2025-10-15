@@ -1,3 +1,5 @@
-function welcome(name: String) { }
+function welcome(name: string) {
+  return name
+}
 
-welcome("hellee");
+welcome('hellee')
