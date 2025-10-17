@@ -29,8 +29,10 @@
     "typescript-eslint": "^8.46.1"
   },
   "dependencies": {
+    "@types/http-errors": "^2.0.5",
     "dotenv": "^17.2.3",
     "express": "^5.1.0",
+    "http-errors": "^2.0.0",
     "winston": "^3.18.3"
   }
 }
