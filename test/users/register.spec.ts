@@ -13,16 +13,16 @@ describe('POST /auth/register', () => {
       }
 
       //act
-      const response = await Request(app)
-        .post('/auth/register')
-        .send(registerData)
+      const response = await Request(app).post('/auth/register').send(registerData)
 
       // assert
       expect(response.status).toBe(201)
     })
 
-    it('it should return valid json response ', async () => {
-      // arrange
+
+    // testing
+    it('it should return valid json response ', async ()=>{
+          // arrange
       const registerData = {
         email: 'test@example.com',
         password: 'password123',
@@ -30,16 +30,32 @@ describe('POST /auth/register', () => {
       }
 
       //act
-      const response = await Request(app)
-        .post('/auth/register')
-        .send(registerData)
+      const response = await Request(app).post('/auth/register').send(registerData)
 
       // assert
-      expect(response.headers['content-type']).toEqual(
-        expect.stringContaining('json'),
-      )
+      expect(response.headers['content-type']).toEqual(expect.stringContaining('json'))
     })
+
+
+    it('should persist user in database', async ()=>{
+          // arrange
+      const registerData = {
+        email: 'test@example.com',
+        password: 'password123',
+        confirmPassword: 'password123',
+      }
+
+      //act
+      const response = await Request(app).post('/auth/register').send(registerData)
+
+      // assert
+      
+    })
+
+
   })
 
-  describe('fields are missing', () => {})
+  describe('fields are missing', () => {
+
+  })
 })
