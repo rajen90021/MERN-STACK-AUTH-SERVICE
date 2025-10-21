@@ -6,7 +6,7 @@ const app = express()
 
 app.get('/',  (req, res, next) => {
 
-  const err = createHttpError(401,"you cannot access this route")
+  const err = createHttpError(200,"you cannot access this route")
   next(err)
   
 })
