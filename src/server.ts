@@ -8,6 +8,7 @@ export const startServer = () => {
   try {
     app.listen(port, () => {
       logger.info("app is listening",{port :port})
+      console.log(`app is listening on port ${port}`)
     })
   } catch (e) {
     console.log(e)
