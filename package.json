@@ -5,14 +5,15 @@
   "main": "index.js",
   "scripts": {
     "build": "npx tsc",
-    "start": "node dist/server.js",
+    "start": "ts-node src/index.ts",
     "watch": "tsc --watch",
-    "dev": "nodemon --exec ts-node src/server.ts",
+    "dev": "cross-env NODE_ENV=dev nodemon --exec ts-node src/server.ts",
     "format:fix": "prettier . --write",
     "format:check": "prettier . --check",
     "lint:fix": "eslint . --fix",
     "lint:check": "eslint .",
-    "test": "jest --watch --runInBand"
+    "test": "jest --watch --runInBand",
+    "typeorm": "typeorm-ts-node-commonjs"
   },
   "author": "rajen gupta rajen90021@gmail.com",
   "license": "ISC",
@@ -23,6 +24,7 @@
     "@types/node": "^24.7.2",
     "@types/supertest": "^6.0.3",
     "@types/winston": "^2.4.4",
+    "cross-env": "^10.1.0",
     "eslint": "^9.37.0",
     "jest": "^30.2.0",
     "nodemon": "^3.1.10",
@@ -38,9 +40,9 @@
     "dotenv": "^17.2.3",
     "express": "^5.1.0",
     "http-errors": "^2.0.0",
-    "pg": "^8.16.3",
+    "pg": "^8.14.1",
     "reflect-metadata": "^0.2.2",
-    "typeorm": "^0.3.27",
+    "typeorm": "0.3.27",
     "winston": "^3.18.3"
   }
 }
