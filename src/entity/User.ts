@@ -14,4 +14,7 @@ export class User {
   email: string
   @Column()
   password: string
+
+  @Column({ default: 'customer' })
+  role: string
 }

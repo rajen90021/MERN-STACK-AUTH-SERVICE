@@ -9,8 +9,8 @@ export const AppDataSource = new DataSource({
   username: Config.DB_USERNAME ?? 'root',
   password: Config.DB_PASSWORD ?? 'root',
   database: Config.DB_NAME ?? 'merstack_auth_service_test',
-  //   dont use this in production
-  synchronize: Config.NODE_ENV === 'test' || Config.NODE_ENV === 'dev',
+  //   dont use this in production always keep false
+  synchronize:false,
   logging: false,
   entities: [User],
   migrations: [],

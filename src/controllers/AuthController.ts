@@ -22,6 +22,7 @@ export class AuthController {
         lastName,
         email,
         password,
+        
       })
       this.logger.info(`User ${user.id} registered successfully`)
       res.status(201).json({ id: user.id, firstName, lastName, email })
