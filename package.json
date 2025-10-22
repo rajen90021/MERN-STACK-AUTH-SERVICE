@@ -37,10 +37,12 @@
     "typescript-eslint": "^8.46.1"
   },
   "dependencies": {
+    "@types/express-validator": "^2.20.33",
     "@types/http-errors": "^2.0.5",
     "bcrypt": "^6.0.0",
     "dotenv": "^17.2.3",
     "express": "^5.1.0",
+    "express-validator": "^7.2.1",
     "http-errors": "^2.0.0",
     "pg": "^8.14.1",
     "reflect-metadata": "^0.2.2",
