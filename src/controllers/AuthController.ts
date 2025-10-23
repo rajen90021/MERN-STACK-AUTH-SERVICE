@@ -1,19 +1,18 @@
-import fs from 'fs'
-import path from 'path'
-
 import { NextFunction, Response } from 'express'
 import { RegisterUserRequest } from '../types'
 import { UserService } from '../services/UserService'
 import { Logger } from 'winston'
 import createHttpError from 'http-errors'
 import { validationResult } from 'express-validator'
-import { JwtPayload, sign } from 'jsonwebtoken'
-import { Config } from '../config'
+import { JwtPayload } from 'jsonwebtoken'
+
+import { TokenService } from '../services/tokenService'
 
 export class AuthController {
   constructor(
     private userService: UserService,
     private logger: Logger,
+    private tokenService: TokenService,
   ) {}
 
   async register(req: RegisterUserRequest, res: Response, next: NextFunction) {
@@ -43,31 +42,21 @@ export class AuthController {
         password,
       })
       this.logger.info(`User ${user.id} registered successfully`)
-      let privateKey: Buffer
-      try {
-        privateKey = fs.readFileSync(
-          path.join(__dirname, '../../certs/privateKey.pem'),
-        )
-      } catch (e) {
-        this.logger.error('Error reading private key:', e)
-        next(createHttpError(500, 'Internal server error'))
-        return
-      }
+
       const payload: JwtPayload = {
         sub: String(user.id),
         role: user.role,
       }
 
-      const accessToken = sign(payload, privateKey, {
-        algorithm: 'RS256',
-        expiresIn: '1h',
-        issuer: 'auth-service',
-      })
+      const accessToken = this.tokenService.generateAccessToken(payload)
 
-      const refreshToken = sign(payload, Config.REFRESH_TOKEN_SECRET!, {
-        algorithm: 'HS256',
-        expiresIn: '7d',
-        issuer: 'auth-service',
+      // persist the refresh token in database or in-memory store like redis
+
+      const newRefeshToken = await this.tokenService.persistRefreshToken(user)
+
+      const refreshToken = this.tokenService.generateRefreshToken({
+        ...payload,
+        id: newRefeshToken.id,
       })
 
       res.cookie('accessToken', accessToken, {

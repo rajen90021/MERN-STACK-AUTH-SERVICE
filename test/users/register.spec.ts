@@ -6,6 +6,8 @@ import { DataSource } from 'typeorm'
 import { AppDataSource } from '../../src/config/data-source'
 import { roles } from '../../src/constants'
 import { isJwt } from '../utils'
+import { RefreshToken } from '../../src/entity/RefreshToken'
+import { response } from 'express'
 
 describe('POST /auth/register', () => {
   let connection: DataSource
@@ -224,32 +226,60 @@ describe('POST /auth/register', () => {
       const users = await connection.getRepository(User).find()
       expect(users).toHaveLength(0)
     })
-  })
 
-  describe('field are not in proper format', () => {
-    it(' should trim the email field', async () => {
+    it('should store the refresh token in the database', async () => {
       // arrange
       const registerData = {
         firstName: 'John',
         lastName: 'Doe',
-        email: ' test@example.com ',
+        email: 'test@example.com',
         password: 'password123',
       }
+
       //act
-      await Request(app).post('/auth/register').send(registerData)
+      const response = await Request(app)
+        .post('/auth/register')
+        .send(registerData)
 
       // asserts
+      const refreshTokenRepository = connection.getRepository(RefreshToken)
+      // const refreshTokens = await refreshTokenRepository.find()
 
-      const userRepository = connection.getRepository(User)
-      const users = await userRepository.find()
-      expect(users[0]?.email).toBe('test@example.com')
+      const userId = (response.body as { id?: number }).id
+      const tokens = await refreshTokenRepository
+        .createQueryBuilder('refreshToken')
+        .where('refreshToken.userId = :userId', { userId })
+        .getMany()
+
+      expect(tokens).toHaveLength(1)
+      // expect(refreshTokens).toHaveLength(1)
     })
 
-    it.todo('should return 400 status code if email is not a valid email ')
-    it.todo(
-      'should return 400 status code if password is less than 6 characters long',
-    )
+    describe('field are not in proper format', () => {
+      it(' should trim the email field', async () => {
+        // arrange
+        const registerData = {
+          firstName: 'John',
+          lastName: 'Doe',
+          email: ' test@example.com ',
+          password: 'password123',
+        }
+        //act
+        await Request(app).post('/auth/register').send(registerData)
 
-    it.todo('should return 400 status code if email is not a valid email ')
+        // asserts
+
+        const userRepository = connection.getRepository(User)
+        const users = await userRepository.find()
+        expect(users[0]?.email).toBe('test@example.com')
+      })
+
+      it.todo('should return 400 status code if email is not a valid email ')
+      it.todo(
+        'should return 400 status code if password is less than 6 characters long',
+      )
+
+      it.todo('should return 400 status code if email is not a valid email ')
+    })
   })
 })
