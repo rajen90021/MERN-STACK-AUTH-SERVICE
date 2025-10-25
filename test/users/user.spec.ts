@@ -92,6 +92,25 @@ describe('GET /auth/self', () => {
                                expect(response.body).not.toHaveProperty('password')
              
             })
+
+
+              it('should return 401 status code if no token is provided', async ()=>{
+
+                        const userData = {
+                            firstName: 'John',
+                            lastName: 'Doe',
+                            email: 'test4@example.com',
+                            password: 'password1234',
+                        }
+                //  register user 
+              
+                          
+                            const response = await request(app).get('/auth/self').send();
+                            console.log(response.body)
+
+                          expect(response.statusCode).toBe(401)
+             
+            })
             })
  
 })
