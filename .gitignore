@@ -87,6 +87,7 @@ web_modules/
 .env.prod
 
 certs/
+public/
 
 
 # parcel-bundler cache (https://parceljs.org/)
