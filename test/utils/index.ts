@@ -1,5 +1,4 @@
 import { DataSource } from 'typeorm'
-import { User } from '../../src/entity/User'
 
 export const truncateTables = async (connection: DataSource) => {
   const entities = connection.entityMetadatas
@@ -9,18 +8,23 @@ export const truncateTables = async (connection: DataSource) => {
   }
 }
 
-export const isJwt = (token: string): boolean => {
-  const parts = token.split('.')
 
-  if (parts.length !== 3) return false
+export const isJwt = (token: string | null) : boolean => {
+          if(!token)
+          return false
+          const parts = token.split('.')
 
-  try {
-    parts.forEach((part) => {
-      Buffer.from(part, 'base64').toString('utf-8')
-    })
+          if(parts.length !== 3)
+          return false
+       
+          try{
+            parts.forEach((part)=>{
+             Buffer.from(part, 'base64').toString('utf-8');
+            })
 
-    return true
-  } catch (e) {
-    return false
-  }
+            return true;
+
+          }catch(e){
+            return false
+          }
 }

@@ -13,7 +13,9 @@
     "lint:fix": "eslint . --fix",
     "lint:check": "eslint .",
     "test": "jest --watch --runInBand",
-    "typeorm": "typeorm-ts-node-commonjs"
+    "migration:generate": "typeorm-ts-node-commonjs migration:generate ./src/migration/migration -d ./src/config/data-source.ts",
+    "migration:run": "typeorm-ts-node-commonjs migration:run -d ./src/config/data-source.ts",
+    "migration:create": "typeorm-ts-node-commonjs migration:create ./src/migration/migration -d ./src/config/data-source.ts"
   },
   "author": "rajen gupta rajen90021@gmail.com",
   "license": "ISC",
