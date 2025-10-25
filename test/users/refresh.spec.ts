@@ -33,13 +33,11 @@ describe('POST /auth/refresh', () => {
   describe('given a valid refresh token', () => {
     // it('should return 200 and set new access/refresh tokens', async () => {
     //   // Arrange — create user in DB
-
     //   // 👇 generate token like /auth/self test
     //   const token = jwks.token({
     //     sub: '1',
     //     role: roles.CUSTOMER,
     //   })
-
     //   // Act
     //   const response = await request(app)
     //     .post('/auth/refresh')
@@ -49,14 +47,11 @@ describe('POST /auth/refresh', () => {
     //   // Assert
     //   expect(response.statusCode).toBe(200)
     //   expect(response.headers['set-cookie']).toBeDefined()
-
     //   const cookies = Array.isArray(response.headers['set-cookie'])
     //     ? response.headers['set-cookie'].join(';')
     //     : response.headers['set-cookie'] || ''
-
     //   expect(cookies).toContain('accessToken=')
     //   expect(cookies).toContain('refreshToken=')
-
     //   expect(response.body.id).toBe(Number(response.body.id))
     //   expect(response.body.email).toBe(response.body.email)
     //   expect(response.body).not.toHaveProperty('password')

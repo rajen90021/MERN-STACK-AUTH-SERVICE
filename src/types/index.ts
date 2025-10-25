@@ -1,4 +1,5 @@
 import { Request } from 'express'
+import { Tenant } from './../entity/Tenants'
 export interface UserData {
   firstName: string
   lastName: string
@@ -30,4 +31,13 @@ export type AuthCookie = {
 
 export interface IRefreshTokenPayload {
   id: string
+}
+
+export interface ITenants {
+  name: string
+  address: string
+}
+
+export interface CreateTenantRequest extends Request {
+  body: ITenants
 }

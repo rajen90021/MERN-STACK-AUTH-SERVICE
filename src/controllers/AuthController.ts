@@ -156,14 +156,12 @@ export class AuthController {
         maxAge: 1000 * 60 * 60 * 24 * 7, // 7 days
       })
       this.logger.info(`User ${user.id} logged in successfully`)
-      res
-        .status(200)
-        .json({
-          id: user.id,
-          email,
-          firstName: user.firstName,
-          lastName: user.lastName,
-        })
+      res.status(200).json({
+        id: user.id,
+        email,
+        firstName: user.firstName,
+        lastName: user.lastName,
+      })
     } catch (error) {
       next(error)
       return
@@ -232,21 +230,18 @@ export class AuthController {
         maxAge: 1000 * 60 * 60 * 24 * 7, // 7 days
       })
       this.logger.info(`User ${user.id} logged in successfully`)
-      res
-        .status(200)
-        .json({
-          id: user.id,
-          email: user.email,
-          firstName: user.firstName,
-          lastName: user.lastName,
-        })
+      res.status(200).json({
+        id: user.id,
+        email: user.email,
+        firstName: user.firstName,
+        lastName: user.lastName,
+      })
     } catch (e) {
       this.logger.error(e)
       next(e)
       return
     }
   }
-
 
   async logout(req: AuthRequest, res: Response, next: NextFunction) {
     try {

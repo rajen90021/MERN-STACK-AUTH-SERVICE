@@ -5,17 +5,16 @@ import {
   UpdateDateColumn,
 } from 'typeorm'
 
-
-@Entity({name: 'tenants'})
+@Entity({ name: 'tenants' })
 export class Tenant {
   @PrimaryGeneratedColumn()
   id: number
 
- @Column('varchar',{length:255})
- name :string
+  @Column('varchar', { length: 255 })
+  name: string
 
- @Column('varchar',{length:255})
- address:string
+  @Column('varchar', { length: 255 })
+  address: string
 
   @UpdateDateColumn()
   createdAt: number
