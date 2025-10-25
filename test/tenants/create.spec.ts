@@ -4,21 +4,35 @@ import { AppDataSource } from '../../src/config/data-source'
 import request from 'supertest'
 import { roles } from '../../src/constants'
 import { Tenant } from '../../src/entity/Tenants'
+import createJWKSMock from 'mock-jwks'
 
 describe('POST /tenants', () => {
-  let connection: DataSource
+ let connection: DataSource
+  let jwks: ReturnType<typeof createJWKSMock>
+  let adminToken :string
 
   beforeAll(async () => {
+    jwks = createJWKSMock('http://localhost:5501')
     connection = await AppDataSource.initialize()
   })
 
   beforeEach(async () => {
+    jwks.start()
     await connection.dropDatabase()
     await connection.synchronize()
+
+    adminToken = jwks.token({ sub: '123', role: roles.ADMIN })
+  })
+  afterEach(() => {
+    jwks.stop()
   })
 
   afterAll(async () => {
     await connection.destroy()
+  })
+
+  afterEach(()=>{
+    jwks.stop();
   })
 
   describe('gven all fields', () => {
@@ -27,7 +41,7 @@ describe('POST /tenants', () => {
         name: 'tanat data ',
         address: 'tenant address',
       }
-      const response = await request(app).post('/tenants').send(tenantsData)
+      const response = await request(app).post('/tenants').set('Cookie', [`accessToken=${adminToken}`]).send(tenantsData)
       expect(response.statusCode).toBe(201)
     })
 
@@ -36,11 +50,28 @@ describe('POST /tenants', () => {
         name: 'tanat data ',
         address: 'tenant address',
       }
-      const response = await request(app).post('/tenants').send(tenantsData)
+      const response = await request(app).post('/tenants').set('Cookie', [`accessToken=${adminToken}`]).send(tenantsData)
       const tenantRepository = connection.getRepository(Tenant)
 
       const tenant = await tenantRepository.find()
       expect(tenant).toHaveLength(1)
+      
+    })
+
+     it('should return 401 if user is not authenicated', async () => {
+      const tenantsData = {
+        name: 'tanat data ',
+        address: 'tenant address',
+      }
+      const response = await request(app).post('/tenants').send(tenantsData)
+
+      expect(response.statusCode).toBe(401)
+      
+      const tenantRepository = connection.getRepository(Tenant)
+
+      const tenant = await tenantRepository.find()
+      expect(tenant).toHaveLength(0)
+      
     })
   })
 })
