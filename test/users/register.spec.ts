@@ -7,7 +7,6 @@ import { AppDataSource } from '../../src/config/data-source'
 import { roles } from '../../src/constants'
 import { isJwt } from '../utils'
 import { RefreshToken } from '../../src/entity/RefreshToken'
-import { response } from 'express'
 
 describe('POST /auth/register', () => {
   let connection: DataSource
@@ -100,8 +99,7 @@ describe('POST /auth/register', () => {
       const response = await Request(app)
         .post('/auth/register')
         .send(registerData)
-      // Log the full response body
-      console.log('Response body:', response.body)
+      
       // Assert
       expect(response.status).toBe(201)
       expect(response.body).toHaveProperty('id') // <-- TDD: expect id in response

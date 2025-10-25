@@ -4,6 +4,8 @@ import path from 'path'
 config({
   path: path.join(__dirname, `../../.env.${process.env.NODE_ENV}`),
 })
+console.log("process.env.NODE_ENV:", process.env.NODE_ENV)
+console.log("JWKS_URI:", process.env.JWKS_URI)
 
 const {
   PORT,
@@ -15,6 +17,7 @@ const {
   DB_NAME,
   REFRESH_TOKEN_SECRET,
   REFRESH_TOKEN_EXPIRES_IN,
+  JWKS_URI
 } = process.env
 
 export const Config = {
@@ -27,4 +30,6 @@ export const Config = {
   DB_NAME,
   REFRESH_TOKEN_SECRET,
   REFRESH_TOKEN_EXPIRES_IN,
+  JWKS_URI
+,
 }

@@ -35,4 +35,24 @@ export class UserService {
       throw error
     }
   }
+
+  async findbyEmail(email: string) {
+    const user = await this.userRepository.findOne({
+      where: {
+        email,
+      },
+    })
+  
+    return user
+  }
+
+  async findById(id: number) {
+    const user = await this.userRepository.findOne({
+      where: {
+        id
+      },
+    })
+  
+    return user
+  }
 }

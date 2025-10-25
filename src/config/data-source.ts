@@ -9,9 +9,9 @@ export const AppDataSource = new DataSource({
   port: Number(Config.DB_PORT ?? 5432),
   username: Config.DB_USERNAME ?? 'root',
   password: Config.DB_PASSWORD ?? 'root',
-  database: Config.DB_NAME ?? 'merstack_auth_service_test',
+  database: Config.DB_NAME ?? 'merstack_auth_service_dev',
   //   dont use this in production always keep false
-  synchronize: false,
+  synchronize: true,
   logging: false,
   entities: [User, RefreshToken],
   migrations: [],
