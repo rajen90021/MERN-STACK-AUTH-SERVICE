@@ -184,4 +184,67 @@ export class AuthController {
 
      
 }
+
+
+  async refresh(req: Request, res: Response , next: NextFunction) {
+
+    console.log("testi",(req as AuthRequest).auth )
+
+
+    const payload : JwtPayload = {
+      sub: (req as AuthRequest).auth.sub,
+      role: (req as AuthRequest).auth.role,
+    }
+    try{
+      const accessToken = this.tokenService.generateAccessToken(payload)
+
+
+      const user  = await this.userService.findById(Number((req as AuthRequest).auth.sub));
+
+      if(!user){
+        const err = createHttpError(401, 'User with the token could not find')
+        next(err)
+        return
+      }
+      // persist the refresh token in database or in-memory store like redis
+
+      const newRefeshToken = await this.tokenService.persistRefreshToken(user);
+        
+        // delete old refresh token
+        await this.tokenService.deleteRefreshToken(Number((req as AuthRequest).auth.id))
+
+
+
+      const refreshToken = this.tokenService.generateRefreshToken({
+        ...payload,
+        id: newRefeshToken.id,
+      })
+
+      res.cookie('accessToken', accessToken, {
+        domain: 'localhost',
+        httpOnly: true,
+        secure: true,
+        sameSite: 'strict',
+        maxAge: 1000 * 60 * 60, // 1hr
+      })
+      res.cookie('refreshToken', refreshToken, {
+        domain: 'localhost',
+        httpOnly: true,
+        secure: true,
+        sameSite: 'strict',
+        maxAge: 1000 * 60 * 60 * 24 * 7, // 7 days
+      })
+      this.logger.info(`User ${user.id} logged in successfully`)
+      res.status(200).json({ id: user.id, email: user.email, firstName: user.firstName, lastName: user.lastName })
+    }catch(e){
+      this.logger.error(e)
+      next(e)
+      return
+    }
+
+    
+    }
+   
+    
+
 }

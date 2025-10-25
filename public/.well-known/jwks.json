@@ -1,5 +1,5 @@
 {
-    "key": [
+    "keys": [
         {
             "kty": "RSA",
             "use": "sig",

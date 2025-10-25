@@ -10,10 +10,9 @@ export default expressjwt({
     secret: jwksRsa.expressJwtSecret({
         cache: true,
         rateLimit: true,
-        jwksRequestsPerMinute: 5,
         jwksUri: Config.JWKS_URI!,
     }),
-    algorithms: ['RS256'],
+    algorithms: ['RS256'], 
     getToken(req:Request){
 
         const authHeader = req.headers.authorization
@@ -26,6 +25,7 @@ export default expressjwt({
 
         const {accessToken:token}= req.cookies
         if(token){
+           
             return token
         }
         return null

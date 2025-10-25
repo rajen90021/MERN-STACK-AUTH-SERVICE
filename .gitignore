@@ -87,7 +87,7 @@ web_modules/
 .env.prod
 
 certs/
-public/
+public/.well-known/jwks.json
 
 
 # parcel-bundler cache (https://parceljs.org/)
