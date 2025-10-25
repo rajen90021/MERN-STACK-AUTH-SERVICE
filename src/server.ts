@@ -7,7 +7,7 @@ export const startServer = async () => {
   const port = Config.PORT
 
   try {
-    await AppDataSource.initialize();
+    await AppDataSource.initialize()
     logger.info('database connected')
     console.log('database connected')
     app.listen(port, () => {

@@ -83,8 +83,6 @@ export class AuthController {
     }
   }
 
-
-
   async login(req: RegisterUserRequest, res: Response, next: NextFunction) {
     const result = validationResult(req)
     if (!result.isEmpty()) {
@@ -101,18 +99,16 @@ export class AuthController {
       return
     }
 
-    this.logger.debug(
-      `Logging in user with email ${email}`,
-    )
+    this.logger.debug(`Logging in user with email ${email}`)
 
     // check if user exists in db
     // compare password
     // add token to cookie
-    // retrun the response 
+    // retrun the response
     try {
       const user = await this.userService.findbyEmail(email)
 
-      if(!user){
+      if (!user) {
         const err = createHttpError(400, 'Email or password does not match')
         next(err)
         return
@@ -128,7 +124,6 @@ export class AuthController {
         next(err)
         return
       }
-    
 
       const payload: JwtPayload = {
         sub: String(user.id),
@@ -161,59 +156,61 @@ export class AuthController {
         maxAge: 1000 * 60 * 60 * 24 * 7, // 7 days
       })
       this.logger.info(`User ${user.id} logged in successfully`)
-      res.status(200).json({ id: user.id, email, firstName: user.firstName, lastName: user.lastName })
+      res
+        .status(200)
+        .json({
+          id: user.id,
+          email,
+          firstName: user.firstName,
+          lastName: user.lastName,
+        })
     } catch (error) {
       next(error)
       return
     }
   }
 
-
   async self(req: AuthRequest, res: Response) {
     this.logger.error(`Fetching user ${req.auth.sub}`)
-    console.log( "req.auth:", req.auth)
-    try{
- const user = await this.userService.findById(Number(req.auth.sub));
+    console.log('req.auth:', req.auth)
+    try {
+      const user = await this.userService.findById(Number(req.auth.sub))
       return res.json({ ...user, password: undefined })
-    }catch(error){
+    } catch (error) {
       this.logger.error('Error fetching user:', error)
-      
+
       return
     }
-     
+  }
 
-     
-}
+  async refresh(req: Request, res: Response, next: NextFunction) {
+    console.log('testi', (req as AuthRequest).auth)
 
-
-  async refresh(req: Request, res: Response , next: NextFunction) {
-
-    console.log("testi",(req as AuthRequest).auth )
-
-
-    const payload : JwtPayload = {
+    const payload: JwtPayload = {
       sub: (req as AuthRequest).auth.sub,
       role: (req as AuthRequest).auth.role,
     }
-    try{
+
+    try {
       const accessToken = this.tokenService.generateAccessToken(payload)
 
+      const user = await this.userService.findById(
+        Number((req as AuthRequest).auth.sub),
+      )
 
-      const user  = await this.userService.findById(Number((req as AuthRequest).auth.sub));
-
-      if(!user){
+      if (!user) {
         const err = createHttpError(401, 'User with the token could not find')
         next(err)
         return
       }
       // persist the refresh token in database or in-memory store like redis
 
-      const newRefeshToken = await this.tokenService.persistRefreshToken(user);
-        
-        // delete old refresh token
-        await this.tokenService.deleteRefreshToken(Number((req as AuthRequest).auth.id))
+      const newRefeshToken = await this.tokenService.persistRefreshToken(user)
 
-
+      // delete old refresh token
+      await this.tokenService.deleteRefreshToken(
+        Number((req as AuthRequest).auth.id),
+      )
 
       const refreshToken = this.tokenService.generateRefreshToken({
         ...payload,
@@ -235,16 +232,18 @@ export class AuthController {
         maxAge: 1000 * 60 * 60 * 24 * 7, // 7 days
       })
       this.logger.info(`User ${user.id} logged in successfully`)
-      res.status(200).json({ id: user.id, email: user.email, firstName: user.firstName, lastName: user.lastName })
-    }catch(e){
+      res
+        .status(200)
+        .json({
+          id: user.id,
+          email: user.email,
+          firstName: user.firstName,
+          lastName: user.lastName,
+        })
+    } catch (e) {
       this.logger.error(e)
       next(e)
       return
     }
-
-    
-    }
-   
-    
-
+  }
 }

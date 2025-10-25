@@ -5,12 +5,10 @@ import { UserData } from '../types'
 import createHttpError from 'http-errors'
 import { roles } from '../constants'
 
-
 export class UserService {
   constructor(private userRepository: Repository<User>) {}
 
-  async create({ firstName, lastName, email, password  }: UserData) {
-
+  async create({ firstName, lastName, email, password }: UserData) {
     const user = await this.userRepository.findOne({
       where: {
         email,
@@ -42,17 +40,17 @@ export class UserService {
         email,
       },
     })
-  
+
     return user
   }
 
   async findById(id: number) {
     const user = await this.userRepository.findOne({
       where: {
-        id
+        id,
       },
     })
-  
+
     return user
   }
 }

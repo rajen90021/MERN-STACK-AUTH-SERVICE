@@ -5,7 +5,7 @@ import { User } from '../../src/entity/User'
 import { DataSource } from 'typeorm'
 import { AppDataSource } from '../../src/config/data-source'
 import { roles } from '../../src/constants'
-import { isJwt } from '../utils'
+
 import { RefreshToken } from '../../src/entity/RefreshToken'
 
 describe('POST /auth/register', () => {
@@ -99,7 +99,7 @@ describe('POST /auth/register', () => {
       const response = await Request(app)
         .post('/auth/register')
         .send(registerData)
-      
+
       // Assert
       expect(response.status).toBe(201)
       expect(response.body).toHaveProperty('id') // <-- TDD: expect id in response

@@ -6,17 +6,13 @@ import { DataSource } from 'typeorm'
 import { AppDataSource } from '../../src/config/data-source'
 import { roles } from '../../src/constants'
 
-
- 
-
 describe('GET /auth/self', () => {
   let connection: DataSource
-  let jwks:ReturnType<typeof createJWKSMock>;
+  let jwks: ReturnType<typeof createJWKSMock>
 
   beforeAll(async () => {
-     jwks = createJWKSMock('http://localhost:5501')
+    jwks = createJWKSMock('http://localhost:5501')
     connection = await AppDataSource.initialize()
-   
   })
 
   beforeEach(async () => {
@@ -24,93 +20,97 @@ describe('GET /auth/self', () => {
     await connection.dropDatabase()
     await connection.synchronize()
   })
-   afterEach(()=>{
+  afterEach(() => {
     jwks.stop()
-   })
+  })
 
   afterAll(async () => {
     await connection.destroy()
   })
 
-        describe('given all fields',()=>{
+  describe('given all fields', () => {
+    it('should return the 200 status code', async () => {
+      // arrange
 
-            it('should return the 200 status code', async ()=>{
- // arrange             
+      const token = jwks.token({
+        sub: '1',
+        role: roles.CUSTOMER,
+      })
+      // act
+      const response = await request(app)
+        .get('/auth/self')
+        .set('Cookie', [`accessToken=${token}`])
+        .send()
+      expect(response.statusCode).toBe(200)
+    })
 
-                            const token = jwks.token({
-                                sub: "1",
-                                role: roles.CUSTOMER,
-                            })
-                            // act
-                const response = await request(app).get('/auth/self').set('Cookie',[`accessToken=${token}`]).send();
-                expect(response.statusCode).toBe(200)
-            })
+    it('should return the user data ', async () => {
+      const userData = {
+        firstName: 'John',
+        lastName: 'Doe',
+        email: 'test4@example.com',
+        password: 'password1234',
+      }
+      //  register user
+      const userRepository = connection.getRepository(User)
+      const user = await userRepository.save({
+        ...userData,
+        role: roles.CUSTOMER,
+      })
+      // arrange
+      const token = jwks.token({
+        sub: String(user.id),
+        role: user.role,
+      })
+      const response = await request(app)
+        .get('/auth/self')
+        .set('Cookie', [`accessToken=${token}`])
+        .send()
+      console.log(response.body)
 
-             it('should return the user data ', async ()=>{
+      expect(response.body.id).toBe(user.id)
+    })
 
-                        const userData = {
-                            firstName: 'John',
-                            lastName: 'Doe',
-                            email: 'test4@example.com',
-                            password: 'password1234',
-                        }
-                //  register user 
-                     const userRepository = connection.getRepository(User)
-                     const user = await userRepository.save({...userData,role:roles.CUSTOMER})
-                            // arrange
-                            const token = jwks.token({
-                                sub: String(user.id),
-                                role: user.role,
-                            })
-                            const response = await request(app).get('/auth/self').set('Cookie',[`accessToken=${token}`]).send();
-                            console.log(response.body)
+    it('should not return the password', async () => {
+      const userData = {
+        firstName: 'John',
+        lastName: 'Doe',
+        email: 'test4@example.com',
+        password: 'password1234',
+      }
+      //  register user
+      const userRepository = connection.getRepository(User)
+      const user = await userRepository.save({
+        ...userData,
+        role: roles.CUSTOMER,
+      })
+      // arrange
+      const token = jwks.token({
+        sub: String(user.id),
+        role: user.role,
+      })
+      const response = await request(app)
+        .get('/auth/self')
+        .set('Cookie', [`accessToken=${token}`])
+        .send()
+      console.log(response.body)
 
-                                expect(response.body.id).toBe(user.id)
-             
-            })
+      expect(response.body).not.toHaveProperty('password')
+    })
 
+    it('should return 401 status code if no token is provided', async () => {
+      const userData = {
+        firstName: 'John',
+        lastName: 'Doe',
+        email: 'test4@example.com',
+        password: 'password1234',
+      }
+      //  register user
 
-             it('should not return the password', async ()=>{
+      const response = await request(app).get('/auth/self').send()
+      console.log(response.body)
 
-                        const userData = {
-                            firstName: 'John',
-                            lastName: 'Doe',
-                            email: 'test4@example.com',
-                            password: 'password1234',
-                        }
-                //  register user 
-                     const userRepository = connection.getRepository(User)
-                     const user = await userRepository.save({...userData,role:roles.CUSTOMER})
-                            // arrange
-                            const token = jwks.token({
-                                sub: String(user.id),
-                                role: user.role,
-                            })
-                            const response = await request(app).get('/auth/self').set('Cookie',[`accessToken=${token}`]).send();
-                            console.log(response.body)
-
-                               expect(response.body).not.toHaveProperty('password')
-             
-            })
-
-
-              it('should return 401 status code if no token is provided', async ()=>{
-
-                        const userData = {
-                            firstName: 'John',
-                            lastName: 'Doe',
-                            email: 'test4@example.com',
-                            password: 'password1234',
-                        }
-                //  register user 
-              
-                          
-                            const response = await request(app).get('/auth/self').send();
-                            console.log(response.body)
-
-                          expect(response.statusCode).toBe(401)
-             
-            })
-            })
- 
+      expect(response.statusCode).toBe(401)
+    })
+  })
 })

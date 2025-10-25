@@ -36,12 +36,10 @@ describe('POST /auth/login', () => {
       await request(app).post('/auth/register').send(registerData)
 
       // Act — now try to login
-      const response = await request(app)
-        .post('/auth/login')
-        .send({
-          email: 'test@example.com',
-          password: 'password123',
-        })
+      const response = await request(app).post('/auth/login').send({
+        email: 'test@example.com',
+        password: 'password123',
+      })
 
       // Assert
       expect(response.status).toBe(200)
@@ -55,8 +53,14 @@ describe('POST /auth/login', () => {
       // Cookies should be set
       const cookies = response.headers['set-cookie']
       expect(cookies).toBeDefined()
-      expect(Array.isArray(cookies) && cookies.some((c: string) => c.includes('accessToken'))).toBe(true)
-      expect(Array.isArray(cookies) && cookies.some((c: string) => c.includes('refreshToken'))).toBe(true)
+      expect(
+        Array.isArray(cookies) &&
+          cookies.some((c: string) => c.includes('accessToken')),
+      ).toBe(true)
+      expect(
+        Array.isArray(cookies) &&
+          cookies.some((c: string) => c.includes('refreshToken')),
+      ).toBe(true)
     })
 
     it('should return 400 if password is incorrect', async () => {
@@ -69,27 +73,21 @@ describe('POST /auth/login', () => {
 
       await request(app).post('/auth/register').send(registerData)
 
-      const response = await request(app)
-        .post('/auth/login')
-        .send({
-          email: 'wrongpass@example.com',
-          password: 'wrongpassword',
-        })
+      const response = await request(app).post('/auth/login').send({
+        email: 'wrongpass@example.com',
+        password: 'wrongpassword',
+      })
 
       expect(response.status).toBe(400)
-     
     })
 
     it('should return 400 if user does not exist', async () => {
-      const response = await request(app)
-        .post('/auth/login')
-        .send({
-          email: 'nouser@example.com',
-          password: 'password123',
-        })
+      const response = await request(app).post('/auth/login').send({
+        email: 'nouser@example.com',
+        password: 'password123',
+      })
 
       expect(response.status).toBe(400)
-     
     })
 
     it('should return 400 if fields are missing', async () => {
@@ -111,12 +109,10 @@ describe('POST /auth/login', () => {
 
       await request(app).post('/auth/register').send(registerData)
 
-      await request(app)
-        .post('/auth/login')
-        .send({
-          email: 'token@example.com',
-          password: 'password123',
-        })
+      await request(app).post('/auth/login').send({
+        email: 'token@example.com',
+        password: 'password123',
+      })
 
       const refreshRepo = connection.getRepository(RefreshToken)
       const tokens = await refreshRepo.find()

@@ -20,7 +20,12 @@ const userService = new UserService(userRepository)
 const refreshTokenRepository = AppDataSource.getRepository(RefreshToken)
 const tokenService = new TokenService(refreshTokenRepository)
 const credentialService = new CredentialService()
-const authController = new AuthController(userService, logger, tokenService, credentialService)
+const authController = new AuthController(
+  userService,
+  logger,
+  tokenService,
+  credentialService,
+)
 
 authRouter.post(
   '/register',
@@ -29,7 +34,6 @@ authRouter.post(
     authController.register(req, res, next),
 )
 
-
 authRouter.post(
   '/login',
   loginValidator,
@@ -37,18 +41,15 @@ authRouter.post(
     authController.login(req, res, next),
 )
 
-authRouter.get(
-  '/self',
-  authenticate,
-  (req: Request, res: Response) =>
-    authController.self(req as AuthRequest, res ),
+authRouter.get('/self', authenticate, (req: Request, res: Response) =>
+  authController.self(req as AuthRequest, res),
 )
 
 authRouter.post(
   '/refresh',
   validateRefreshToken,
   (req: Request, res: Response, next: NextFunction) =>
-    authController.refresh(req as AuthRequest, res, next ),
+    authController.refresh(req as AuthRequest, res, next),
 )
 
 export default authRouter
