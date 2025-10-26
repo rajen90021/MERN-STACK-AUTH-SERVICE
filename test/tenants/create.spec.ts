@@ -23,7 +23,7 @@ describe('POST /tenants', () => {
 
     adminToken = jwks.token({ sub: '123', role: roles.ADMIN })
   })
-  afterEach(() => {
+  afterEach( async() => {
     jwks.stop()
   })
 
@@ -31,9 +31,7 @@ describe('POST /tenants', () => {
     await connection.destroy()
   })
 
-  afterEach(()=>{
-    jwks.stop();
-  })
+
 
   describe('gven all fields', () => {
     it('should return  201 status code ', async () => {
@@ -66,6 +64,26 @@ describe('POST /tenants', () => {
       const response = await request(app).post('/tenants').send(tenantsData)
 
       expect(response.statusCode).toBe(401)
+      
+      const tenantRepository = connection.getRepository(Tenant)
+
+      const tenant = await tenantRepository.find()
+      expect(tenant).toHaveLength(0)
+      
+    })
+
+
+    it('should return 403 if user is not admin', async () => {
+
+        const managerToken = jwks.token({ sub: '456', role: roles.MANAGER })
+
+      const tenantsData = {
+        name: 'tanat data ',
+        address: 'tenant address',
+      }
+      const response = await request(app).post('/tenants').set('Cookie', [`accessToken=${managerToken}`]).send(tenantsData)
+
+      expect(response.statusCode).toBe(403)
       
       const tenantRepository = connection.getRepository(Tenant)
 
