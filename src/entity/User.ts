@@ -1,24 +1,27 @@
-import { Column, Entity, ManyToOne, PrimaryGeneratedColumn } from 'typeorm'
-import { Tenant } from './Tenants'
+import { Column, Entity, ManyToOne, PrimaryGeneratedColumn } from "typeorm";
+import { Tenant } from "./Tenants";
 
-@Entity({ name: 'users' })
+
+@Entity({ name: "users" })
 export class User {
   @PrimaryGeneratedColumn()
-  id: number
+  id: number;
 
   @Column()
-  firstName: string
+  firstName: string;
 
   @Column()
-  lastName: string
-  @Column()
-  email: string
+  lastName: string;
+
   @Column({ unique: true })
-  password: string
+  email: string;
 
-  @Column({ default: 'customer' })
-  role: string
+  @Column({ select: false })
+  password: string;
+
+  @Column()
+  role: string;
 
   @ManyToOne(() => Tenant)
-  tenant: Tenant
+  tenant: Tenant | null;
 }

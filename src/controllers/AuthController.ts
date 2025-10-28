@@ -8,6 +8,7 @@ import { JwtPayload } from 'jsonwebtoken'
 
 import { TokenService } from '../services/tokenService'
 import { CredentialService } from '../services/CredentialService'
+import { roles } from '../constants'
 
 export class AuthController {
   constructor(
@@ -15,7 +16,7 @@ export class AuthController {
     private logger: Logger,
     private tokenService: TokenService,
     private credentialService: CredentialService,
-  ) {}
+  ) { }
 
   async register(req: RegisterUserRequest, res: Response, next: NextFunction) {
     const result = validationResult(req)
@@ -42,12 +43,19 @@ export class AuthController {
         lastName,
         email,
         password,
+        role: roles.CUSTOMER,
       })
       this.logger.info(`User ${user.id} registered successfully`)
 
       const payload: JwtPayload = {
         sub: String(user.id),
         role: user.role,
+        // add tenant id to the payload
+        tenant: user.tenant ? String(user.tenant.id) : '',
+
+        firstName: user.firstName,
+        lastName: user.lastName,
+        email: user.email,
       }
 
       const accessToken = this.tokenService.generateAccessToken(payload)
@@ -106,7 +114,7 @@ export class AuthController {
     // add token to cookie
     // retrun the response
     try {
-      const user = await this.userService.findbyEmail(email)
+      const user = await this.userService.findbyEmailWithPassword(email)
 
       if (!user) {
         const err = createHttpError(400, 'Email or password does not match')
@@ -128,6 +136,10 @@ export class AuthController {
       const payload: JwtPayload = {
         sub: String(user.id),
         role: user.role,
+        tenant: user.tenant ? String(user.tenant.id) : '',
+        firstName: user.firstName,
+        lastName: user.lastName,
+        email: user.email,
       }
 
       const accessToken = this.tokenService.generateAccessToken(payload)
@@ -187,6 +199,10 @@ export class AuthController {
     const payload: JwtPayload = {
       sub: (req as AuthRequest).auth.sub,
       role: (req as AuthRequest).auth.role,
+      tenant: (req as AuthRequest).auth.tenant,
+      firstName: (req as AuthRequest).auth.firstName,
+      lastName: (req as AuthRequest).auth.lastName,
+      email: (req as AuthRequest).auth.email,
     }
 
     try {

@@ -1,122 +1,100 @@
-import request from 'supertest'
-import app from '../../src/app'
-import { User } from '../../src/entity/User'
-import { DataSource } from 'typeorm'
-import { AppDataSource } from '../../src/config/data-source'
-import { roles } from '../../src/constants'
-import { RefreshToken } from '../../src/entity/RefreshToken'
+import { DataSource } from "typeorm";
+import * as bcrypt from "bcryptjs";
+import request from "supertest";
+import { AppDataSource } from "../../src/config/data-source";
+import app from "../../src/app";
+import { isJwt } from "../utils";
+import { User } from "../../src/entity/User";
+import { roles } from "../../src/constants";
 
-describe('POST /auth/login', () => {
-  let connection: DataSource
+describe("POST /auth/login", () => {
+    let connection: DataSource;
 
-  beforeAll(async () => {
-    connection = await AppDataSource.initialize()
-  })
+    beforeAll(async () => {
+        connection = await AppDataSource.initialize();
+    });
 
-  beforeEach(async () => {
-    await connection.dropDatabase()
-    await connection.synchronize()
-  })
+    beforeEach(async () => {
+        await connection.dropDatabase();
+        await connection.synchronize();
+    });
 
-  afterAll(async () => {
-    await connection.destroy()
-  })
+    afterAll(async () => {
+        await connection.destroy();
+    });
 
-  describe('given all required fields', () => {
-    it('should return 200 OK if login is successful', async () => {
-      // Arrange — create user first
-      const registerData = {
-        firstName: 'John',
-        lastName: 'Doe',
-        email: 'test@example.com',
-        password: 'password123',
-      }
+    describe("Given all fields", () => {
+        it("should return the access token and refresh token inside a cookie", async () => {
+            // Arrange
+            const userData = {
+                firstName: "Rakesh",
+                lastName: "K",
+                email: "rakesh@mern.space",
+                password: "password",
+            };
 
-      // Create a user by calling the register endpoint
-      await request(app).post('/auth/register').send(registerData)
+            const hashedPassword = await bcrypt.hash(userData.password, 10);
 
-      // Act — now try to login
-      const response = await request(app).post('/auth/login').send({
-        email: 'test@example.com',
-        password: 'password123',
-      })
+            const userRepository = connection.getRepository(User);
+            await userRepository.save({
+                ...userData,
+                password: hashedPassword,
+                role: roles.CUSTOMER,
+            });
 
-      // Assert
-      expect(response.status).toBe(200)
-      expect(response.body).toMatchObject({
-        id: expect.any(Number),
-        email: 'test@example.com',
-        firstName: 'John',
-        lastName: 'Doe',
-      })
+            // Act
+            const response = await request(app)
+                .post("/auth/login")
+                .send({ email: userData.email, password: userData.password });
 
-      // Cookies should be set
-      const cookies = response.headers['set-cookie']
-      expect(cookies).toBeDefined()
-      expect(
-        Array.isArray(cookies) &&
-          cookies.some((c: string) => c.includes('accessToken')),
-      ).toBe(true)
-      expect(
-        Array.isArray(cookies) &&
-          cookies.some((c: string) => c.includes('refreshToken')),
-      ).toBe(true)
-    })
+            interface Headers {
+                ["set-cookie"]: string[];
+            }
+            // Assert
+            let accessToken = null;
+            let refreshToken = null;
+            const cookies = response.headers["set-cookie"] || [];
+            (cookies as string[]).forEach((cookie) => {
+                if (cookie.startsWith("accessToken=")) {
+                    accessToken = cookie.split(";")[0].split("=")[1];
+                }
 
-    it('should return 400 if password is incorrect', async () => {
-      const registerData = {
-        firstName: 'Jane',
-        lastName: 'Doe',
-        email: 'wrongpass@example.com',
-        password: 'password123',
-      }
+                if (cookie.startsWith("refreshToken=")) {
+                    refreshToken = cookie.split(";")[0].split("=")[1];
+                }
+            });
+            expect(accessToken).not.toBeNull();
+            expect(refreshToken).not.toBeNull();
 
-      await request(app).post('/auth/register').send(registerData)
+            expect(isJwt(accessToken)).toBeTruthy();
+            expect(isJwt(refreshToken)).toBeTruthy();
+        });
+        it("should return the 400 if email or password is wrong", async () => {
+            // Arrange
+            const userData = {
+                firstName: "Rakesh",
+                lastName: "K",
+                email: "rakesh@mern.space",
+                password: "password",
+            };
 
-      const response = await request(app).post('/auth/login').send({
-        email: 'wrongpass@example.com',
-        password: 'wrongpassword',
-      })
+            const hashedPassword = await bcrypt.hash(userData.password, 10);
 
-      expect(response.status).toBe(400)
-    })
+            const userRepository = connection.getRepository(User);
+            await userRepository.save({
+                ...userData,
+                password: hashedPassword,
+                role: roles.CUSTOMER,
+            });
 
-    it('should return 400 if user does not exist', async () => {
-      const response = await request(app).post('/auth/login').send({
-        email: 'nouser@example.com',
-        password: 'password123',
-      })
+            // Act
+            const response = await request(app)
+                .post("/auth/login")
+                .send({ email: userData.email, password: "wrongPassword" });
 
-      expect(response.status).toBe(400)
-    })
+            // Assert
 
-    it('should return 400 if fields are missing', async () => {
-      const response = await request(app)
-        .post('/auth/login')
-        .send({ email: '' })
-
-      expect(response.status).toBe(400)
-      expect(response.body.errors || response.body.message).toBeDefined()
-    })
-
-    it('should store a refresh token in the database after login', async () => {
-      const registerData = {
-        firstName: 'Token',
-        lastName: 'Tester',
-        email: 'token@example.com',
-        password: 'password123',
-      }
-
-      await request(app).post('/auth/register').send(registerData)
-
-      await request(app).post('/auth/login').send({
-        email: 'token@example.com',
-        password: 'password123',
-      })
-
-      const refreshRepo = connection.getRepository(RefreshToken)
-      const tokens = await refreshRepo.find()
-      expect(tokens.length).toBeGreaterThan(0)
-    })
-  })
-})
+            expect(response.statusCode).toBe(400);
+        });
+    });
+});

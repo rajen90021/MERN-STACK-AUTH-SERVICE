@@ -42,9 +42,11 @@
     "typescript-eslint": "^8.46.1"
   },
   "dependencies": {
+    "@types/bcryptjs": "^2.4.6",
     "@types/express-validator": "^2.20.33",
     "@types/http-errors": "^2.0.5",
     "bcrypt": "^6.0.0",
+    "bcryptjs": "^3.0.2",
     "cookie-parser": "^1.4.7",
     "dotenv": "^17.2.3",
     "express": "^5.1.0",

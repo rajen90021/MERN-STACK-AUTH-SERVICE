@@ -1,24 +1,25 @@
 import {
   Column,
+  CreateDateColumn,
   Entity,
   PrimaryGeneratedColumn,
   UpdateDateColumn,
-} from 'typeorm'
+} from "typeorm";
 
-@Entity({ name: 'tenants' })
+@Entity({ name: "tenants" })
 export class Tenant {
   @PrimaryGeneratedColumn()
-  id: number
+  id: number;
 
-  @Column('varchar', { length: 255 })
-  name: string
+  @Column("varchar", { length: 100 })
+  name: string;
 
-  @Column('varchar', { length: 255 })
-  address: string
-
-  @UpdateDateColumn()
-  createdAt: number
+  @Column("varchar", { length: 255 })
+  address: string;
 
   @UpdateDateColumn()
-  updatedAt: number
+  updatedAt: number;
+
+  @CreateDateColumn()
+  createdAt: number;
 }

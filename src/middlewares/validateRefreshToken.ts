@@ -1,7 +1,7 @@
 import { expressjwt } from 'express-jwt'
 import { Config } from '../config'
 import { Request } from 'express'
-import { AuthCookie, IRefreshTokenPayload, TokenPayload } from '../types'
+import { AuthCookie, IRefreshTokenPayload, } from '../types'
 import { AppDataSource } from '../config/data-source'
 import { RefreshToken } from '../entity/RefreshToken'
 

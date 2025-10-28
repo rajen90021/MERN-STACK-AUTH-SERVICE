@@ -1,10 +1,10 @@
 import { Repository } from 'typeorm'
 import { Tenant } from '../entity/Tenants'
-import { ITenants } from '../types'
+import { ITenant } from '../types'
 
 export class TenantService {
-  constructor(private tenantRepository: Repository<Tenant>) {}
-  async createTenant(tenantData: ITenants) {
+  constructor(private tenantRepository: Repository<Tenant>) { }
+  async createTenant(tenantData: ITenant) {
     return await this.tenantRepository.save(tenantData)
   }
   async getListTenant() {
@@ -17,7 +17,7 @@ export class TenantService {
       },
     })
   }
-  async updateTenant(tenantId: number, tenantData: ITenants) {
+  async updateTenant(tenantId: number, tenantData: ITenant) {
     return await this.tenantRepository.update(tenantId, tenantData)
   }
   async deleteTenant(tenantId: number) {
