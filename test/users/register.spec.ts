@@ -16,10 +16,14 @@ describe('POST /auth/register', () => {
     })
 
     beforeEach(async () => {
-        await connection.dropDatabase()
+        // Instead of dropDatabase(), clear schema and resync
+        const queryRunner = connection.createQueryRunner()
+        await queryRunner.query('DROP SCHEMA public CASCADE')
+        await queryRunner.query('CREATE SCHEMA public')
+        await queryRunner.release()
+
         await connection.synchronize()
     })
-
     afterAll(async () => {
         await connection.destroy()
     })

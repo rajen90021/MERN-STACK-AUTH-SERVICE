@@ -28,7 +28,7 @@ authRouter.post(
 
 authRouter.get(
   '/list',
-  authenticate,
+
   canAccess([roles.ADMIN]),
   (req: Request, res: Response, next: NextFunction) =>
     tenantController.getListTenant(req as AuthRequest, res, next),

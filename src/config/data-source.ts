@@ -1,9 +1,11 @@
 import 'reflect-metadata'
 import { DataSource } from 'typeorm'
-import { User } from '../entity/User'
+import path from 'path'
+
 import { Config } from '.'
-import { RefreshToken } from '../entity/RefreshToken'
-import { Tenant } from '../entity/Tenants'
+
+const isCompiled = __dirname.includes('dist')
+
 export const AppDataSource = new DataSource({
   type: 'postgres',
   host: Config.DB_HOST ?? 'localhost',
@@ -14,7 +16,7 @@ export const AppDataSource = new DataSource({
   //   dont use this in production always keep false
   synchronize: false,
   logging: false,
-  entities: ['src/entity/*.{ts,js}'],
-  migrations: ['src/migration/*.{ts,js}'],
+  entities: [path.join(__dirname, '..', 'entity', '*.{ts,js}')],
+  migrations: [path.join(__dirname, '..', 'migration', '*.{ts,js}')],
   subscribers: [],
 })
