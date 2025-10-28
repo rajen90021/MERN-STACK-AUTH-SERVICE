@@ -7,4 +7,20 @@ export class TenantService {
   async createTenant(tenantData: ITenants) {
     return await this.tenantRepository.save(tenantData)
   }
+  async getListTenant() {
+    return await this.tenantRepository.find()
+  }
+  async getSingleTenantById(tenantId: number) {
+    return await this.tenantRepository.findOne({
+      where: {
+        id: tenantId,
+      },
+    })
+  }
+  async updateTenant(tenantId: number, tenantData: ITenants) {
+    return await this.tenantRepository.update(tenantId, tenantData)
+  }
+  async deleteTenant(tenantId: number) {
+    return await this.tenantRepository.delete(tenantId)
+  }
 }
