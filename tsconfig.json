@@ -14,7 +14,8 @@
     ],
     // For nodejs:
     "lib": [
-      "ES6"
+      "ES6",
+      "ESNext"
     ],
     // "types": ["node"],
     // and npm install -D @types/node

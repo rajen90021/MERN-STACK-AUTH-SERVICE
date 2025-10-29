@@ -1,72 +1,72 @@
-import { Request } from "express";
+import { Request } from 'express'
 
 export interface UserData {
-  firstName: string;
-  lastName: string;
-  email: string;
-  password: string;
-  role: string;
-  tenantId?: number | undefined;
+  firstName: string
+  lastName: string
+  email: string
+  password: string
+  role: string
+  tenantId?: number | undefined
 }
 export interface RegisterUserRequest extends Request {
-  body: UserData;
+  body: UserData
 }
 
 export interface AuthRequest extends Request {
   auth: {
-    sub: string;
-    role: string;
-    id?: string;
-    tenant: string;
-    firstName: string;
-    lastName: string;
-    email: string;
-  };
+    sub: string
+    role: string
+    id?: string
+    tenant: string
+    firstName: string
+    lastName: string
+    email: string
+  }
 }
 
 export type AuthCookie = {
-  accessToken: string;
-  refreshToken: string;
-};
+  accessToken: string
+  refreshToken: string
+}
 
 export interface IRefreshTokenPayload {
-  id: string;
+  id: string
 }
 
 export interface ITenant {
-  name: string;
-  address: string;
+  name: string
+  address: string
 }
 
 export interface CreateTenantRequest extends Request {
-  body: ITenant;
+  body: ITenant
 }
 
 export interface CreateUserRequest extends Request {
-  body: UserData;
+  body: UserData
 }
 
 export interface LimitedUserData {
-  firstName: string;
-  lastName: string;
-  role: string;
-  email: string;
-  tenantId: number;
+  firstName: string
+  lastName: string
+  role: string
+  email: string
+  tenantId: number
 }
 
 export interface UpdateUserRequest extends Request {
-  body: LimitedUserData;
+  body: LimitedUserData
 }
 
 export interface UserQueryParams {
-  perPage: number;
-  currentPage: number;
-  q: string;
-  role: string;
+  perPage: number
+  currentPage: number
+  q: string
+  role: string
 }
 
 export interface TenantQueryParams {
-  q: string;
-  perPage: number;
-  currentPage: number;
+  q: string
+  perPage: number
+  currentPage: number
 }

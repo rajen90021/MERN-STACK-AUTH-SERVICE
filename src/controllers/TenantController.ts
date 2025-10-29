@@ -1,8 +1,8 @@
-import { NextFunction, Request, Response } from 'express'
+import { NextFunction, Response, Request } from 'express'
 import { TenantService } from '../services/TenantService'
-import { AuthRequest, CreateTenantRequest } from '../types'
-import logger from './../config/logger'
-import { validationResult } from 'express-validator'
+import { CreateTenantRequest, TenantQueryParams } from '../types'
+
+import { matchedData, validationResult } from 'express-validator'
 import { Logger } from 'winston'
 import createHttpError from 'http-errors'
 
@@ -28,39 +28,42 @@ export class TenantController {
       this.logger.info(`Tenant ${tenant.id} created`)
       res.status(201).json(tenant)
     } catch (e) {
-      this.logger.error(`Error creating tenant: ${e}`)
+      this.logger.error(`Error creating tenant: `, e)
       next(e)
       return
     }
   }
 
-  async getListTenant(req: AuthRequest, res: Response, next: NextFunction) {
+  async getAll(req: Request, res: Response, next: NextFunction) {
+    const validatedQuery = matchedData(req, { onlyValidData: true })
     try {
-      const tenantList = await this.tenantService.getListTenant()
-      this.logger.info(`Tenant list: ${tenantList}`)
-      res.status(200).json(tenantList)
-    } catch (e) {
-      this.logger.error(`Error getting tenant list: ${e}`)
-      next(e)
-      return
+      const [tenants, count] = await this.tenantService.getAll(
+        validatedQuery as TenantQueryParams,
+      )
+
+      this.logger.info('All tenant have been fetched')
+      res.json({
+        currentPage: validatedQuery.currentPage as number,
+        perPage: validatedQuery.perPage as number,
+        total: count,
+        data: tenants,
+      })
+
+      res.json(tenants)
+    } catch (err) {
+      next(err)
     }
   }
-  async getSingleTenantById(
-    req: AuthRequest,
-    res: Response,
-    next: NextFunction,
-  ) {
+  async getOne(req: Request, res: Response, next: NextFunction) {
+    // Parse and validate numeric tenantId from route params
+    const tenantId = Number(req.params?.id)
+
+    if (isNaN(tenantId) || tenantId <= 0) {
+      next(createHttpError(400, 'Invalid url param.'))
+      return
+    }
+
     try {
-      const tenantId = Number(req.params.id)
-
-      // ✅ 1. Validate tenantId
-      if (isNaN(tenantId) || tenantId <= 0) {
-        this.logger.warn(`Invalid tenant ID provided: ${req.params.id}`)
-        const error = createHttpError(400, 'Invalid tenant ID')
-        next(error)
-        return
-      }
-
       // ✅ 2. Fetch tenant
       const tenant = await this.tenantService.getSingleTenantById(tenantId)
 
@@ -75,16 +78,19 @@ export class TenantController {
       // ✅ 4. Success
       this.logger.info(`Tenant ${tenantId} details retrieved.`)
       return res.status(200).json(tenant)
-    } catch (e: any) {
+    } catch (e) {
       // ✅ 5. Catch unexpected errors
-      this.logger.error(
-        `Error retrieving tenant ${req.params.id}: ${e.message || e}`,
-      )
+      this.logger.error(`Error retrieving tenant ${req.params.id}: `, e)
       const error = createHttpError(500, 'Internal server error')
       next(error)
     }
   }
-  async updateTenant(req: AuthRequest, res: Response, next: NextFunction) {
+  async update(req: CreateTenantRequest, res: Response, next: NextFunction) {
+    const result = validationResult(req)
+    if (!result.isEmpty()) {
+      this.logger.error('Validation errors:', result.array())
+      return res.status(400).json({ errors: result.array() })
+    }
     try {
       const tenantId = Number(req.params.id)
       const { name, address } = req.body
@@ -134,14 +140,12 @@ export class TenantController {
       return res.status(200).json({
         message: 'Tenant updated successfully',
       })
-    } catch (e: any) {
-      this.logger.error(
-        `Error updating tenant ${req.params.id}: ${e.message || e}`,
-      )
+    } catch (e) {
+      this.logger.error(`Error updating tenant ${req.params.id}: `, e)
       next(createHttpError(500, 'Internal server error'))
     }
   }
-  async deleteTenant(req: AuthRequest, res: Response, next: NextFunction) {
+  async destroy(req: Request, res: Response, next: NextFunction) {
     try {
       const tenantId = Number(req.params.id)
 
@@ -174,10 +178,8 @@ export class TenantController {
       return res.status(200).json({
         message: 'Tenant deleted successfully',
       })
-    } catch (e: any) {
-      this.logger.error(
-        `Error deleting tenant ${req.params.id}: ${e.message || e}`,
-      )
+    } catch (e) {
+      this.logger.error(`Error deleting tenant ${req.params.id}: `, e)
       next(createHttpError(500, 'Internal server error'))
     }
   }

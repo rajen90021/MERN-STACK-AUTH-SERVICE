@@ -16,7 +16,7 @@ export class AuthController {
     private logger: Logger,
     private tokenService: TokenService,
     private credentialService: CredentialService,
-  ) { }
+  ) {}
 
   async register(req: RegisterUserRequest, res: Response, next: NextFunction) {
     const result = validationResult(req)
@@ -187,6 +187,7 @@ export class AuthController {
       const user = await this.userService.findById(Number(req.auth.sub))
       return res.json({ ...user, password: undefined })
     } catch (error) {
+      console.log('Error fetching user:', error)
       this.logger.error('Error fetching user:', error)
 
       return
@@ -262,9 +263,7 @@ export class AuthController {
   async logout(req: AuthRequest, res: Response, next: NextFunction) {
     try {
       console.log('req.auth:', req.auth)
-      await this.tokenService.deleteRefreshToken(
-        Number((req as AuthRequest).auth.id),
-      )
+      await this.tokenService.deleteRefreshToken(Number(req.auth.id))
       res.clearCookie('accessToken')
       res.clearCookie('refreshToken')
       res.status(200).json({ message: 'Logged out successfully' })

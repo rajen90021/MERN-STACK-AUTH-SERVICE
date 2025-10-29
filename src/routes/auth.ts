@@ -17,7 +17,7 @@ import parseRefreshToken from '../middlewares/parseRefreshToken'
 const authRouter = express.Router()
 
 const userRepository = AppDataSource.getRepository(User)
-const userService = new UserService(userRepository)
+const userService = new UserService(userRepository, logger)
 const refreshTokenRepository = AppDataSource.getRepository(RefreshToken)
 const tokenService = new TokenService(refreshTokenRepository)
 const credentialService = new CredentialService()

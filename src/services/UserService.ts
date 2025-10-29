@@ -3,10 +3,13 @@ import bcrypt from 'bcrypt'
 import { User } from '../entity/User'
 import { UserData } from '../types'
 import createHttpError from 'http-errors'
-import { roles } from '../constants'
+import { Logger } from 'winston'
 
 export class UserService {
-  constructor(private userRepository: Repository<User>) { }
+  constructor(
+    private userRepository: Repository<User>,
+    private logger: Logger,
+  ) {}
 
   async create({
     firstName,
@@ -36,8 +39,9 @@ export class UserService {
         role,
         tenantId: tenantId || undefined,
       })
-    } catch (err) {
-      const error = createHttpError(500, 'failed to store dartails in DB')
+    } catch (_err) {
+      this.logger.error('Error storing user details in DB', { error: _err })
+      const error = createHttpError(500, 'failed to store details in DB')
       throw error
     }
   }
@@ -90,7 +94,7 @@ export class UserService {
         firstName,
         lastName,
         email,
-      }
+      },
     )
   }
 

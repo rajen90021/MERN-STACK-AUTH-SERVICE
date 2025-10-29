@@ -11,8 +11,9 @@ import { UserController } from '../controllers/UserController'
 import { User } from '../entity/User'
 
 const userRepository = AppDataSource.getRepository(User)
-const userService = new UserService(userRepository)
-const userController = new UserController(userService, logger)
+const loggerInstance = logger
+const userService = new UserService(userRepository, loggerInstance)
+const userController = new UserController(userService, loggerInstance)
 
 authRouter.post(
   '/',

@@ -1,59 +1,65 @@
-import express, { NextFunction, Request, Response } from 'express'
-import { AuthRequest } from '../types'
+import express, {
+  NextFunction,
+  Request,
+  RequestHandler,
+  Response,
+} from 'express'
 import { TenantController } from '../controllers/TenantController'
-
-const authRouter = express.Router()
-
 import { TenantService } from '../services/TenantService'
 import { AppDataSource } from '../config/data-source'
-import { Tenant } from '../entity/Tenants'
+
 import logger from '../config/logger'
 import authenticate from '../middlewares/authenticate'
 import { canAccess } from '../middlewares/canAccess'
-import { roles } from '../constants'
+
 import tenantValidator from '../validators/tenant-validator'
+import { CreateTenantRequest } from '../types'
+import listUsersValidator from '../validators/list-users-validator'
+import { Tenant } from '../entity/Tenants'
+import { roles } from '../constants'
+
+const router = express.Router()
 
 const tenantRepository = AppDataSource.getRepository(Tenant)
 const tenantService = new TenantService(tenantRepository)
 const tenantController = new TenantController(tenantService, logger)
 
-authRouter.post(
+router.post(
   '/',
+  authenticate as RequestHandler,
+  canAccess([roles.ADMIN]),
   tenantValidator,
-  authenticate,
-  canAccess([roles.ADMIN]),
-  (req: Request, res: Response, next: NextFunction) =>
-    tenantController.create(req as AuthRequest, res, next),
+  (req: CreateTenantRequest, res: Response, next: NextFunction) =>
+    tenantController.create(req, res, next) as unknown as RequestHandler,
 )
 
-authRouter.get(
-  '/list',
-
-  canAccess([roles.ADMIN]),
-  (req: Request, res: Response, next: NextFunction) =>
-    tenantController.getListTenant(req as AuthRequest, res, next),
-)
-authRouter.get(
+router.patch(
   '/:id',
-  authenticate,
+  authenticate as RequestHandler,
   canAccess([roles.ADMIN]),
-  (req: Request, res: Response, next: NextFunction) =>
-    tenantController.getSingleTenantById(req as AuthRequest, res, next),
-)
-authRouter.post(
-  '/update/:id',
   tenantValidator,
-  authenticate,
-  canAccess([roles.ADMIN]),
-  (req: Request, res: Response, next: NextFunction) =>
-    tenantController.updateTenant(req as AuthRequest, res, next),
+  (req: CreateTenantRequest, res: Response, next: NextFunction) =>
+    tenantController.update(req, res, next) as unknown as RequestHandler,
 )
-authRouter.delete(
-  '/:id',
-  authenticate,
-  canAccess([roles.ADMIN]),
+router.get(
+  '/',
+  listUsersValidator,
   (req: Request, res: Response, next: NextFunction) =>
-    tenantController.deleteTenant(req as AuthRequest, res, next),
+    tenantController.getAll(req, res, next) as unknown as RequestHandler,
+)
+router.get(
+  '/:id',
+  authenticate as RequestHandler,
+  canAccess([roles.ADMIN]),
+  (req, res, next) =>
+    tenantController.getOne(req, res, next) as unknown as RequestHandler,
+)
+router.delete(
+  '/:id',
+  authenticate as RequestHandler,
+  canAccess([roles.ADMIN]),
+  (req, res, next) =>
+    tenantController.destroy(req, res, next) as unknown as RequestHandler,
 )
 
-export default authRouter
+export default router
