@@ -7,9 +7,6 @@ import authRouter from './routes/auth'
 import tenantRouter from './routes/tenants'
 import userRouter from './routes/user'
 
-import path from 'path'
-import { Tenant } from './entity/Tenants'
-
 const app = express()
 app.use(express.static('public', { dotfiles: 'allow' }))
 app.use(cookieParser())
