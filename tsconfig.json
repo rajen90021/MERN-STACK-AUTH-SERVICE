@@ -45,7 +45,11 @@
     "emitDecoratorMetadata": true,
     "experimentalDecorators": true
   },
+  "include": [
+    "src/**/*"
+  ],
   "exclude": [
+    "dist",
     "**/*.spec.ts",
     "tests"
   ]
