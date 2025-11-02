@@ -11,6 +11,7 @@
     "format:fix": "prettier . --write",
     "format:check": "prettier . --check",
     "lint:fix": "eslint . --fix",
+    "lint": "npm run lint:check",
     "lint:check": "eslint .",
     "test": "jest --no-cache --coverage --all --runInBand",
     "test:watch": "jest --watch --runInBand",
