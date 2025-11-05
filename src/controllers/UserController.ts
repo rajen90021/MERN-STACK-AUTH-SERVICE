@@ -4,7 +4,6 @@ import { UserService } from '../services/UserService'
 import { Logger } from 'winston'
 import { CreateUserRequest, UpdateUserRequest, UserQueryParams } from '../types'
 import { matchedData, validationResult } from 'express-validator'
-import createHttpError from 'http-errors'
 
 export class UserController {
   constructor(
@@ -15,7 +14,8 @@ export class UserController {
   async create(req: CreateUserRequest, res: Response, next: NextFunction) {
     const result = validationResult(req)
     if (!result.isEmpty()) {
-      return next(createHttpError(400, result.array()[0]!.msg as string))
+      this.logger.error('Validation errors:', result.array())
+      return res.status(400).json({ errors: result.array() })
     }
 
     const { firstName, lastName, email, password, tenantId, role } = req.body
