@@ -11,22 +11,33 @@ export class TokenService {
   constructor(private refreshTokenRepository: Repository<RefreshToken>) {}
   generateAccessToken(payload: JwtPayload) {
     let privateKey: string
+
     try {
-      const privateKeyPath = path.join(__dirname, '../../certs/privateKey.pem')
-      console.log('🔑 Reading key from:', privateKeyPath)
-      privateKey = fs.readFileSync(privateKeyPath, 'utf8')
+      if (Config.PRIVATE_KEY) {
+        // ✅ Prefer private key directly from environment variable
+        privateKey = Config.PRIVATE_KEY
+        console.log('🔑 Using private key from environment variable')
+      } else {
+        // ✅ Fallback to file
+        const privateKeyPath: string = path.join(
+          __dirname,
+          '../../certs/privateKey.pem',
+        )
+        console.log('🔑 Reading key from file:', privateKeyPath)
+        privateKey = fs.readFileSync(privateKeyPath, 'utf8')
+      }
+
       console.log(
         '✅ Key loaded successfully:',
         privateKey.startsWith('-----BEGIN'),
       )
-    } catch (err) {
+    } catch (err: unknown) {
       console.error('❌ Error reading private key:', err)
       throw createHttpError(500, 'Internal server error')
     }
-
     const accessToken = sign(payload, privateKey, {
       algorithm: 'RS256',
-      expiresIn: '1d',
+      expiresIn: '10m',
       issuer: 'auth-service',
     })
 
