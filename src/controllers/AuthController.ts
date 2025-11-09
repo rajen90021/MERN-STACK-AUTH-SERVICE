@@ -132,7 +132,7 @@ export class AuthController {
         next(err)
         return
       }
-
+      
       const payload: JwtPayload = {
         sub: String(user.id),
         role: user.role,
@@ -182,10 +182,8 @@ export class AuthController {
 
   async self(req: AuthRequest, res: Response) {
     this.logger.error(`Fetching user ${req.auth.sub}`)
-    console.log('req.auth:', req.auth)
     try {
       const user = await this.userService.findById(Number(req.auth.sub))
-      console.log('Fetched user:', user)
       return res.json({ ...user, password: undefined })
     } catch (error) {
       console.log('Error fetching user:', error)
