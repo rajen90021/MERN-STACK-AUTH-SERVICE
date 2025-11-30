@@ -1,17 +1,26 @@
 import 'reflect-metadata'
-import express, { NextFunction, Request, Response } from 'express'
+import express from 'express'
 import cookieParser from 'cookie-parser'
-import logger from './config/logger'
-import createHttpError, { HttpError } from 'http-errors'
+
+import createHttpError from 'http-errors'
 import authRouter from './routes/auth'
 import tenantRouter from './routes/tenants'
 import userRouter from './routes/user'
-
+import cors from 'cors'
+import { Config } from './config'
+import { globalErrorHandler } from './middlewares/globalErrorHandler'
 const app = express()
 app.use(express.static('public', { dotfiles: 'allow' }))
 app.use(cookieParser())
 
 app.use(express.json())
+
+app.use(
+  cors({
+    origin: Config.FRONTEND_URL,
+    credentials: true,
+  }),
+)
 
 app.get('/', (req, res, next) => {
   const err = createHttpError(200, 'you cannot access this route')
@@ -24,20 +33,6 @@ app.use('/users', userRouter)
 
 // global error handler
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
-app.use((err: HttpError, req: Request, res: Response, next: NextFunction) => {
-  logger.error(`[${req.method}] ${req.url} - ${err.message}`)
-  logger.error(err.message)
-  const statusCode = err.statusCode || err.status || 500
-  res.status(statusCode).json({
-    errors: [
-      {
-        type: err.name,
-        msg: err.message,
-        path: '',
-        location: '',
-      },
-    ],
-  })
-})
+app.use(globalErrorHandler)
 
 export default app

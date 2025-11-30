@@ -9,6 +9,7 @@ import { JwtPayload } from 'jsonwebtoken'
 import { TokenService } from '../services/tokenService'
 import { CredentialService } from '../services/CredentialService'
 import { roles } from '../constants'
+import { Config } from '../config'
 
 export class AuthController {
   constructor(
@@ -70,14 +71,14 @@ export class AuthController {
       })
 
       res.cookie('accessToken', accessToken, {
-        domain: 'localhost',
+        domain: Config.MAIN_DOMAIN,
         httpOnly: true,
         secure: true,
         sameSite: 'strict',
         maxAge: 1000 * 60 * 60, // 1hr
       })
       res.cookie('refreshToken', refreshToken, {
-        domain: 'localhost',
+        domain:Config.MAIN_DOMAIN,
         httpOnly: true,
         secure: true,
         sameSite: 'strict',
@@ -132,7 +133,7 @@ export class AuthController {
         next(err)
         return
       }
-
+      
       const payload: JwtPayload = {
         sub: String(user.id),
         role: user.role,
@@ -154,14 +155,14 @@ export class AuthController {
       })
 
       res.cookie('accessToken', accessToken, {
-        domain: 'localhost',
+        domain: Config.MAIN_DOMAIN,
         httpOnly: true,
         secure: true,
         sameSite: 'strict',
         maxAge: 1000 * 60 * 60, // 1hr
       })
       res.cookie('refreshToken', refreshToken, {
-        domain: 'localhost',
+        domain: Config.MAIN_DOMAIN,
         httpOnly: true,
         secure: true,
         sameSite: 'strict',
@@ -182,7 +183,6 @@ export class AuthController {
 
   async self(req: AuthRequest, res: Response) {
     this.logger.error(`Fetching user ${req.auth.sub}`)
-    console.log('req.auth:', req.auth)
     try {
       const user = await this.userService.findById(Number(req.auth.sub))
       return res.json({ ...user, password: undefined })
@@ -233,14 +233,14 @@ export class AuthController {
       })
 
       res.cookie('accessToken', accessToken, {
-        domain: 'localhost',
+        domain:Config.MAIN_DOMAIN,
         httpOnly: true,
         secure: true,
         sameSite: 'strict',
         maxAge: 1000 * 60 * 60, // 1hr
       })
       res.cookie('refreshToken', refreshToken, {
-        domain: 'localhost',
+        domain: Config.MAIN_DOMAIN,
         httpOnly: true,
         secure: true,
         sameSite: 'strict',
