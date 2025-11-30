@@ -9,6 +9,7 @@ import { JwtPayload } from 'jsonwebtoken'
 import { TokenService } from '../services/tokenService'
 import { CredentialService } from '../services/CredentialService'
 import { roles } from '../constants'
+import { Config } from '../config'
 
 export class AuthController {
   constructor(
@@ -70,14 +71,14 @@ export class AuthController {
       })
 
       res.cookie('accessToken', accessToken, {
-        domain: 'localhost',
+        domain: Config.MAIN_DOMAIN,
         httpOnly: true,
         secure: true,
         sameSite: 'strict',
         maxAge: 1000 * 60 * 60, // 1hr
       })
       res.cookie('refreshToken', refreshToken, {
-        domain: 'localhost',
+        domain:Config.MAIN_DOMAIN,
         httpOnly: true,
         secure: true,
         sameSite: 'strict',
@@ -154,14 +155,14 @@ export class AuthController {
       })
 
       res.cookie('accessToken', accessToken, {
-        domain: 'localhost',
+        domain: Config.MAIN_DOMAIN,
         httpOnly: true,
         secure: true,
         sameSite: 'strict',
         maxAge: 1000 * 60 * 60, // 1hr
       })
       res.cookie('refreshToken', refreshToken, {
-        domain: 'localhost',
+        domain: Config.MAIN_DOMAIN,
         httpOnly: true,
         secure: true,
         sameSite: 'strict',
@@ -232,14 +233,14 @@ export class AuthController {
       })
 
       res.cookie('accessToken', accessToken, {
-        domain: 'localhost',
+        domain:Config.MAIN_DOMAIN,
         httpOnly: true,
         secure: true,
         sameSite: 'strict',
         maxAge: 1000 * 60 * 60, // 1hr
       })
       res.cookie('refreshToken', refreshToken, {
-        domain: 'localhost',
+        domain: Config.MAIN_DOMAIN,
         httpOnly: true,
         secure: true,
         sameSite: 'strict',
